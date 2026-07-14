@@ -20,7 +20,6 @@ export default function DetectionModule({
   emoji,
   moduleName,
   moduleClassName,
-  modelReady,
   onBack,
   triggerToast,
 }) {
@@ -29,6 +28,28 @@ export default function DetectionModule({
   const [totalDetections, setTotalDetections] = useState(0)
   const [pendingEvent, setPendingEvent] = useState(null)
   const [loadError, setLoadError] = useState(null)
+
+  const [modelReady, setModelReady] = useState(null)
+  const [modelFilename, setModelFilename] = useState('')
+
+  useEffect(() => {
+    let healthUrl = '/api/health1'
+    let filename = 'best.pt'
+    if (moduleKey === 'garbage') {
+      healthUrl = '/api/health2'
+      filename = 'best (2).pt'
+    } else if (moduleKey === 'accident') {
+      healthUrl = '/api/health3'
+      filename = 'best (3).pt'
+    }
+    setModelFilename(filename)
+    setModelReady(null)
+
+    fetch(healthUrl)
+      .then(res => res.json())
+      .then(d => setModelReady(d.model_ready))
+      .catch(() => setModelReady(false))
+  }, [moduleKey])
 
   useEffect(() => {
     setLoadError(null)
@@ -143,9 +164,9 @@ export default function DetectionModule({
 
         <div className="workspace-header-right">
           {modelReady !== null && (
-            <div className="status-badge">
+            <div className={`status-badge ${modelReady ? 'ready' : 'not-ready'}`}>
               <span className={`dot ${modelReady ? 'green' : 'red'}`} />
-              {modelReady ? 'Model Ready' : 'Model Missing'}
+              {modelReady ? `${modelFilename} loaded` : `${modelFilename} missing`}
             </div>
           )}
         </div>

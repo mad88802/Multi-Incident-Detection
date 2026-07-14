@@ -47,17 +47,11 @@ const pageVariants = {
 
 export default function App() {
   const [activeModule, setActiveModule] = useState(null) // null = home
-  const [modelReady, setModelReady] = useState(null)
   const [particles, setParticles] = useState([])
   const [toasts, setToasts] = useState([])
   const [dashboardOpen, setDashboardOpen] = useState(false)
 
   useEffect(() => {
-    fetch('/api/health')
-      .then(r => r.json())
-      .then(d => setModelReady(d.model_ready))
-      .catch(() => setModelReady(false))
-
     // Generate static particle properties with negative delays for random initial phase
     const generated = Array.from({ length: 20 }, (_, i) => ({
       id: i,
@@ -139,7 +133,6 @@ export default function App() {
           >
             <HomePage
               onSelect={setActiveModule}
-              modelReady={modelReady}
               onOpenDashboard={() => setDashboardOpen(true)}
             />
           </motion.div>
@@ -161,7 +154,6 @@ export default function App() {
               emoji={module.emoji}
               moduleName={module.name}
               moduleClassName={module.className}
-              modelReady={modelReady}
               onBack={() => setActiveModule(null)}
               triggerToast={triggerToast}
             />

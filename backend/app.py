@@ -45,7 +45,10 @@ def init_db():
 
 init_db()
 
-# ── Model Loading ──────────────────────────────────────────────────────────────
+# ── Models Loading ──────────────────────────────────────────────────────────────
+
+#fire detection : best.pt
+
 MODEL_PATH = os.path.join(BASE_DIR, "best.pt")
 model = None
 
@@ -56,6 +59,36 @@ def get_model():
             raise FileNotFoundError(f"Model not found at: {MODEL_PATH}")
         model = YOLO(MODEL_PATH)
     return model
+
+
+#garbage detection : best (2).pt
+
+MODEL_PATH_2 = os.path.join(BASE_DIR, "best (2).pt")
+model_2 = None
+
+def get_model_2():
+    global model_2
+    if model_2 is None:
+        if not os.path.exists(MODEL_PATH_2):
+            raise FileNotFoundError(f"Model not found at: {MODEL_PATH_2}")
+        model_2 = YOLO(MODEL_PATH_2)
+    return model_2
+
+
+#garbage detection : best (3).pt
+
+MODEL_PATH_3 = os.path.join(BASE_DIR, "best (3).pt")
+model_3 = None
+
+def get_model_3():
+    global model_3
+    if model_3 is None:
+        if not os.path.exists(MODEL_PATH_3):
+            raise FileNotFoundError(f"Model not found at: {MODEL_PATH_3}")
+        model_3 = YOLO(MODEL_PATH_3)
+    return model_3
+
+
 
 # ── Colour palette for classes ─────────────────────────────────────────────────
 CLASS_COLORS = {
@@ -106,72 +139,104 @@ def run_inference(image_bytes: bytes):
     img_b64    = base64.b64encode(buffer).decode("utf-8")
     return img_b64, detections
 
-# ── Simulated Detection Helpers ───────────────────────────────────────────────
-def simulate_detection(image_bytes: bytes, target_type: str):
+####################################################
+
+def run_inference_2(image_bytes: bytes):
     nparr = np.frombuffer(image_bytes, np.uint8)
     img   = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     if img is None:
         raise ValueError("Could not decode image")
 
-    h, w, _ = img.shape
-
-    if target_type == "garbage":
-        classes = ["plastic bottle", "cardboard box", "paper cup", "organic waste", "aluminum can"]
-        colors = {
-            "plastic bottle": (0, 200, 150),
-            "cardboard box": (0, 180, 220),
-            "paper cup": (120, 200, 100),
-            "organic waste": (80, 140, 80),
-            "aluminum can": (0, 220, 180)
-        }
-    else:
-        classes = ["collision", "overturned vehicle", "car scratch", "road debris", "disabled vehicle"]
-        colors = {
-            "collision": (0, 100, 255),
-            "overturned vehicle": (50, 50, 255),
-            "car scratch": (100, 150, 255),
-            "road debris": (200, 100, 255),
-            "disabled vehicle": (0, 180, 255)
-        }
-
-    np.random.seed(int((h * w) % 9999))
-    num_detections = np.random.randint(1, 4)
+    mdl_2     = get_model_2()
+    results_2 = mdl_2(img, verbose=False)[0]
 
     detections = []
-    for _ in range(num_detections):
-        label = np.random.choice(classes)
-        conf = float(np.random.uniform(0.65, 0.96))
+    for box in results_2.boxes:
+        conf  = float(box.conf[0])
+        cls   = int(box.cls[0])
+        label = mdl_2.names[cls]
+        x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
+        color = get_color(label)
 
-        bw = np.random.randint(int(w * 0.15), int(w * 0.4))
-        bh = np.random.randint(int(h * 0.15), int(h * 0.4))
-        x1 = np.random.randint(0, w - bw)
-        y1 = np.random.randint(0, h - bh)
-        x2, y2 = x1 + bw, y1 + bh
-
-        color = colors.get(label, (0, 255, 0))
         cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
-        text = f"{label} {conf:.0%}"
+        text  = f"{label} {conf:.0%}"
         (tw, th), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.55, 1)
         cv2.rectangle(img, (x1, y1 - th - 8), (x1 + tw + 4, y1), color, -1)
         cv2.putText(img, text, (x1 + 2, y1 - 4),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 1)
 
         detections.append({
-            "label": label,
+            "label":      label,
             "confidence": round(conf, 4),
-            "bbox": [x1, y1, x2, y2],
-            "color": f"rgb({color[0]},{color[1]},{color[2]})"
+            "bbox":       [x1, y1, x2, y2],
+            "color":      f"rgb({color[0]},{color[1]},{color[2]})"
         })
 
-    _, buffer = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 90])
-    img_b64 = base64.b64encode(buffer).decode("utf-8")
+    _, buffer  = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 90])
+    img_b64    = base64.b64encode(buffer).decode("utf-8")
     return img_b64, detections
+
+#############################################################
+
+
+def run_inference_3(image_bytes: bytes):
+    nparr = np.frombuffer(image_bytes, np.uint8)
+    img   = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    if img is None:
+        raise ValueError("Could not decode image")
+
+    mdl_3     = get_model_3()
+    results_3 = mdl_3(img, verbose=False)[0]
+
+    detections = []
+    for box in results_3.boxes:
+        conf  = float(box.conf[0])
+        cls   = int(box.cls[0])
+        label = mdl_3.names[cls]
+        x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
+        color = get_color(label)
+
+        cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
+        text  = f"{label} {conf:.0%}"
+        (tw, th), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.55, 1)
+        cv2.rectangle(img, (x1, y1 - th - 8), (x1 + tw + 4, y1), color, -1)
+        cv2.putText(img, text, (x1 + 2, y1 - 4),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 1)
+
+        detections.append({
+            "label":      label,
+            "confidence": round(conf, 4),
+            "bbox":       [x1, y1, x2, y2],
+            "color":      f"rgb({color[0]},{color[1]},{color[2]})"
+        })
+
+    _, buffer  = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 90])
+    img_b64    = base64.b64encode(buffer).decode("utf-8")
+    return img_b64, detections
+
 
 # ── Detection Routes ───────────────────────────────────────────────────────────
 @app.route("/api/health", methods=["GET"])
 def health():
+    """Unified health check — the frontend calls this on startup."""
     model_ready = os.path.exists(MODEL_PATH)
     return jsonify({"status": "ok", "model_ready": model_ready, "model_path": MODEL_PATH})
+
+@app.route("/api/health1", methods=["GET"])
+def health1():
+    model_ready = os.path.exists(MODEL_PATH)
+    return jsonify({"status": "ok", "model_ready": model_ready, "model_path": MODEL_PATH})
+
+@app.route("/api/health2", methods=["GET"])
+def health2():
+    model_ready = os.path.exists(MODEL_PATH_2)
+    return jsonify({"status": "ok", "model_ready": model_ready, "model_path": MODEL_PATH_2})
+
+@app.route("/api/health3", methods=["GET"])
+def health3():
+    model_ready = os.path.exists(MODEL_PATH_3)
+    return jsonify({"status": "ok", "model_ready": model_ready, "model_path": MODEL_PATH_3})
+
 
 
 @app.route("/api/detect/fire", methods=["POST"])
@@ -192,8 +257,10 @@ def detect_fire():
         return jsonify({"error": str(e), "hint": "Place best.pt in the backend/ folder"}), 503
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
 
 
+    
 @app.route("/api/detect/garbage", methods=["POST"])
 def detect_garbage():
     if "file" not in request.files:
@@ -201,15 +268,18 @@ def detect_garbage():
     file        = request.files["file"]
     image_bytes = file.read()
     try:
-        t0 = time.time()
-        img_b64, dets = simulate_detection(image_bytes, "garbage")
-        elapsed = round((time.time() - t0) * 1000, 1)
+        t0             = time.time()
+        img_b64, dets  = run_inference_2(image_bytes)
+        elapsed        = round((time.time() - t0) * 1000, 1)
         return jsonify({
             "success": True, "detections": dets,
             "annotated_img": img_b64, "inference_ms": elapsed, "count": len(dets)
         })
+    except FileNotFoundError as e:
+        return jsonify({"error": str(e), "hint": "Place best.pt in the backend/ folder"}), 503
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 @app.route("/api/detect/accident", methods=["POST"])
@@ -219,15 +289,18 @@ def detect_accident():
     file        = request.files["file"]
     image_bytes = file.read()
     try:
-        t0 = time.time()
-        img_b64, dets = simulate_detection(image_bytes, "accident")
-        elapsed = round((time.time() - t0) * 1000, 1)
+        t0             = time.time()
+        img_b64, dets  = run_inference_3(image_bytes)
+        elapsed        = round((time.time() - t0) * 1000, 1)
         return jsonify({
             "success": True, "detections": dets,
             "annotated_img": img_b64, "inference_ms": elapsed, "count": len(dets)
         })
+    except FileNotFoundError as e:
+        return jsonify({"error": str(e), "hint": "Place best.pt in the backend/ folder"}), 503
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 # ── Event Storage Routes ───────────────────────────────────────────────────────

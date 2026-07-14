@@ -148,7 +148,7 @@ export default function DashboardPage({ onBack }) {
         </button>
         <div className="workspace-header-title">
           <div className="workspace-module-icon" style={{ background: 'rgba(167,139,250,0.15)', color: 'var(--accent-2)' }}>
-            📊
+            📡
           </div>
           <div>
             <div className="workspace-title-text">Operations Center</div>

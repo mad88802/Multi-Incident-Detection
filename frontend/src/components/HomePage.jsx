@@ -67,21 +67,9 @@ export default function HomePage({ onSelect, modelReady, onOpenDashboard }) {
 
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 8, marginBottom: 8 }}>
           <button className="btn primary" onClick={onOpenDashboard} style={{ padding: '10px 24px', fontSize: '14px', borderRadius: '8px' }}>
-            📊 Operations Center
+            📡 Operations Center
           </button>
         </div>
-
-        {modelReady !== null && (
-          <motion.div
-            className={`model-status-pill ${modelReady ? 'ready' : 'not-ready'}`}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            <span className={`dot ${modelReady ? 'green' : 'red'}`} />
-            {modelReady ? 'Fire model (best.pt) loaded' : 'best.pt not found — fire detection unavailable'}
-          </motion.div>
-        )}
       </motion.div>
 
       {/* Module cards */}

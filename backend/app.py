@@ -341,6 +341,18 @@ def save_event():
     }), 201
 
 
+@app.route("/api/events", methods=["DELETE"])
+def clear_events():
+    """Clear all events from the database."""
+    try:
+        with get_db() as conn:
+            conn.execute("DELETE FROM events")
+            conn.commit()
+        return jsonify({"success": True, "message": "All events purged successfully"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 @app.route("/api/events", methods=["GET"])
 def get_events():
     """Return the last 200 events, newest first."""

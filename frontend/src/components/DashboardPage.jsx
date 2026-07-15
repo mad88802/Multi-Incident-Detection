@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 
-export default function DashboardPage({ onBack }) {
+export default function DashboardPage({ onBack, refreshCounter }) {
   const [stats, setStats] = useState(null)
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
@@ -30,7 +30,7 @@ export default function DashboardPage({ onBack }) {
         setError('Could not load statistics. Make sure the Flask backend is running (python backend/app.py).')
         setLoading(false)
       })
-  }, [])
+  }, [refreshCounter])
 
   useEffect(() => {
     if (loading || !stats || !window.L || !mapContainerRef.current) return

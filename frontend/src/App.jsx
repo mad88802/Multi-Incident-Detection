@@ -4,6 +4,7 @@ import HomePage from './components/HomePage'
 import DetectionModule from './components/DetectionModule'
 import DashboardPage from './components/DashboardPage'
 import AlertToast from './components/AlertToast'
+import AiAgentPanel from './components/AiAgentPanel'
 import './index.css'
 
 const MODULES = {
@@ -50,6 +51,7 @@ export default function App() {
   const [particles, setParticles] = useState([])
   const [toasts, setToasts] = useState([])
   const [dashboardOpen, setDashboardOpen] = useState(false)
+  const [refreshCounter, setRefreshCounter] = useState(0)
 
   useEffect(() => {
     // Generate static particle properties with negative delays for random initial phase
@@ -120,7 +122,7 @@ export default function App() {
             exit="exit"
             style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
           >
-            <DashboardPage onBack={() => setDashboardOpen(false)} />
+            <DashboardPage onBack={() => setDashboardOpen(false)} refreshCounter={refreshCounter} />
           </motion.div>
         ) : activeModule === null ? (
           <motion.div
@@ -160,6 +162,8 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AiAgentPanel triggerToast={triggerToast} />
     </div>
   )
 }

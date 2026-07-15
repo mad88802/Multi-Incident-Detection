@@ -5,8 +5,8 @@ const MODULES = [
     id: 'fire',
     emoji: '🔥',
     title: 'Fire & Smoke',
-    desc: 'Real-time detection of active flames and smoke plumes using a custom-trained YOLOv8 model. Upload images or use your webcam for live inference.',
-    tag: 'YOLOv8 · Live',
+    desc: 'Real-time detection of active flames and smoke plumes using a custom-trained YOLOv11 model. Upload images or use your webcam for live inference.',
+    tag: 'YOLOv11 · Live',
     className: 'fire',
   },
   {

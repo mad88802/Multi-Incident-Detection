@@ -78,7 +78,7 @@ export default function AiAgentPanel({ triggerToast }) {
         throw new Error("No Groq API Key configured. Click the ⚙️ gear icon and paste your Groq API key first.")
       }
 
-      const systemPrompt = `You are the "VisionAI Copilot", a helpful conversational assistant for a hazard detection dashboard (fire & smoke, garbage/waste, and traffic accident detection powered by custom YOLOv8 models). Answer the user's questions clearly and helpfully, using Markdown formatting when useful. You can discuss computer vision, YOLO, safety protocols, and general topics.`
+      const systemPrompt = `You are the "VisionAI Copilot", a helpful conversational assistant for a hazard detection dashboard (fire & smoke, garbage/waste, and traffic accident detection powered by custom YOLOv11 models). Answer the user's questions clearly and helpfully, using Markdown formatting when useful. You can discuss computer vision, YOLO, safety protocols, and general topics.`
 
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',

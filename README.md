@@ -32,7 +32,8 @@ fire_detection/
 │   │       ├── StatsTab.jsx            # Per-module detection history
 │   │       ├── DetectionResults.jsx    # Annotated image and detection list
 │   │       ├── MapPanel.jsx            # Leaflet map for pinning incident location
-│   │       └── AlertToast.jsx          # Global alert notifications
+│   │       ├── AlertToast.jsx          # Global alert notifications
+│   │       └── AiAgentPanel.jsx        # VisionAI Copilot chatbot (Groq API)
 │   ├── index.html
 │   ├── vite.config.js      # Vite dev server with /api proxy to :5001
 │   └── package.json
@@ -64,33 +65,6 @@ The backend serves both the API and the built frontend, so you only need one pro
 
 > First-time setup can take 1–2 minutes while PyTorch and Ultralytics are installed.
 
-### Development mode (hot reload)
-
-Run the backend and frontend separately for faster iteration:
-
-**Terminal 1 — Backend:**
-```bash
-cd backend
-python -m venv .venv
-.venv\Scripts\activate        # Windows
-# source .venv/bin/activate   # macOS / Linux
-pip install -r requirements.txt
-python app.py
-```
-
-**Terminal 2 — Frontend:**
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-- API: **http://localhost:5001**
-- Frontend (with HMR): **http://localhost:5173**
-
-The Vite dev server proxies all `/api/*` requests to `http://localhost:5001` automatically.
-
----
 
 ## API Endpoints
 
@@ -105,23 +79,7 @@ The Vite dev server proxies all `/api/*` requests to `http://localhost:5001` aut
 
 All `POST` detection endpoints accept `multipart/form-data` with a `file` field (image).
 
-**Response format:**
-```json
-{
-  "success": true,
-  "count": 2,
-  "detections": [
-    {
-      "label": "fire",
-      "confidence": 0.94,
-      "bbox": [x1, y1, x2, y2],
-      "color": "rgb(255,80,20)"
-    }
-  ],
-  "annotated_img": "<base64-encoded JPEG>",
-  "inference_ms": 142.3
-}
-```
+
 
 ### Events
 
@@ -143,6 +101,7 @@ All `POST` detection endpoints accept `multipart/form-data` with a `file` field 
 - **Alert toasts** — real-time notifications when hazards are detected
 - **Module-aware theming** — Fire (orange), Garbage (teal), Accident (blue)
 - **Model status indicator** — shows whether `best.pt` is loaded on the home page
+- **AI Copilot chatbot** — conversational assistant (powered by the Groq API) answering questions about the system, safety protocols, and computer vision
 
 ---
 
@@ -161,6 +120,27 @@ All three detection modules are powered by **fine-tuned YOLOv11** models. Each m
 We fine-tuned **YOLOv11** separately on each of the three datasets above, producing one specialized model per hazard type. This gives each module its own optimized weights rather than a single general-purpose detector.
 
 Place the trained weights in the `backend/` folder before starting the server (e.g. `best.pt` for the fire module). The home page status pill turns **green** when the fire model is loaded and available.
+
+---
+
+## AI Copilot (Chatbot)
+
+VisionAI includes a floating **🤖 Copilot** chatbot (bottom-right corner of the UI) that lets you ask questions about the system, YOLO/computer vision, and safety protocols in natural language.
+
+The chatbot is powered by the **[Groq API](https://console.groq.com)** (OpenAI-compatible, running open-weight models such as `llama-3.3-70b-versatile`) and is called directly from the browser — no backend changes are required to use it.
+
+### Setup
+
+1. Create a free account at **https://console.groq.com**.
+2. Go to **API Keys** and generate a new key.
+3. In the app, click the **🤖 Copilot** button, then the **⚙️** gear icon in the panel header.
+4. Paste your Groq API key and click **Save**.
+
+The key is stored in the browser's `localStorage` (`visionai_groq_api_key`) and sent directly to Groq's API on each message — it is never sent to or stored by the Flask backend.
+
+> ⚠️ **Security note:** because the key lives in the browser, it is visible to anyone with access to that browser's developer tools. This is fine for local/personal use or demos. For a public deployment, proxy the Groq calls through a backend route instead so the key stays server-side.
+
+Once a key is set, the panel status switches to **🟢 Groq Chatbot Mode** and you can chat freely. Without a key, the Copilot will prompt you to add one before answering.
 
 ---
 

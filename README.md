@@ -15,10 +15,12 @@ Built with a **Flask** backend (Python) and a **React + Vite** frontend. The UI 
 ```
 fire_detection/
 ├── backend/
-│   ├── app.py              # Flask API (YOLO inference, event storage, SPA serving)
-│   ├── best.pt             # YOLOv11 fire/smoke weights (not in git — see below)
-│   ├── events.db           # SQLite database for detection events
-│   └── requirements.txt    # Python dependencies
+│   ├── app.py                  # Flask API (YOLO inference, event storage, SPA serving)
+│   ├── best.pt                 # YOLOv11 fire/smoke weights (not in git — see below)
+│   ├── best (2).pt             # YOLOv11 garbage weights (not in git — see below)
+│   ├── best (3).pt             # YOLOv11 accident weights (not in git — see below)
+│   ├── events.db               # SQLite database for detection events
+│   └── requirements.txt        # Python dependencies
 ├── frontend/
 │   ├── src/
 │   │   ├── App.jsx                     # Root layout, routing, health check

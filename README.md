@@ -1,4 +1,4 @@
-# VisionAI — Multi-Hazard Detection Suite
+# VisionAI — Multi- Detection 
 
 A real-time AI detection platform with three modules, each powered by a **fine-tuned YOLOv11** model trained on its own dataset:
 
